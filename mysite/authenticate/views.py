@@ -31,3 +31,10 @@ def login_user(request):
            
         return render(request, 'authenticate/login.html',{})
 
+def logout_user(request):
+    logout(request)
+    messages.success(request, ('You have Been LogOut!'))
+    return redirect('home')
+
+def register_user(request):
+    return render(request, 'authenticate/register.html', {})
