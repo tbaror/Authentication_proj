@@ -1,9 +1,33 @@
-from django.shortcuts import render
+from django.shortcuts import render ,redirect
+from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
+
+# Create your views here.
 
 
 def home(request):
-    
+
     return render(request,"authenticate/home.html",{})
 
 
-# Create your views here.
+def login_user(request):
+    if request.method == "POST":
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            # Redirect to a success page.
+            messages.success(request, ('You have been Login  Successfully !'))
+            return redirect('home')
+            
+        
+        else:
+            # Return an 'invalid login' error message.
+            messages.success(request, ('You have Fail to Login !'))
+            return redirect('login')
+        
+    else:
+           
+        return render(request, 'authenticate/login.html',{})
+
