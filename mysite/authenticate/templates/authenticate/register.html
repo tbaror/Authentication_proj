@@ -9,7 +9,15 @@
             <button class="close" data-dismiss="alert">
                 <small><sup>x</sup></small>
             </button>
-            Your Form Is not Valid
+           <p>Your Form Is not Valid</p>
+           
+           {% for field in form %}
+              {% if field.errors %}
+              {{field.errors}}
+            {% endif %}
+             
+           {% endfor %}
+             
         </div>
         {% endif %}
 
