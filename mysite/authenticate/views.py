@@ -1,8 +1,8 @@
 from django.shortcuts import render ,redirect
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm, PasswordChangeForm
 from django.contrib import messages
-from .forms import SignUpForm
+from .forms import SignUpForm, UserProfileForm, EditProfileForm
 
 
 # Create your views here.
@@ -61,9 +61,16 @@ def register_user(request):
 
 def edit_profile(request):
     if request.method == 'POST':
-        form = UserChangeForm(request.POST, instance=request.user)
-        if form.is_valid():
-            form.save()
+        form = EditProfileForm(request.POST, instance=request.user)
+        profile_form = UserProfileForm(request.POST)
+        if form.is_valid() and profile_form.is_valid():
+            user = form.save()
+            profile = profile_form.save(commit=False)
+            profile.user = user
+
+            profile.save()
+
+
             
             messages.success(request, ('You have Successfuly Edited Profile!'))
            
@@ -71,7 +78,37 @@ def edit_profile(request):
 
 
     else:
-        form = UserChangeForm(instance=request.user)
-    context = {'form':form}     
+        form = EditProfileForm(instance=request.user)
+        profile_form= UserProfileForm()
+    context = {'form':form, 'profile':profile_form}     
     
     return render(request, 'authenticate/edit_profile.html', context)
+
+
+def change_password(request):
+
+    if request.method == 'POST':
+        form = PasswordChangeForm(data=request.POST, user=request.user)
+        profile_form = UserProfileForm(request.POST)
+        if form.is_valid() and profile_form.is_valid():
+            user = form.save()
+            profile = profile_form.save(commit=False)
+            profile.user = user
+
+            profile.save()
+            update_session_auth_hash(request, form.user)
+
+
+            
+            messages.success(request, ('You have Successfuly Changed Password!'))
+           
+            return redirect('home')
+
+
+    else:
+        form = PasswordChangeForm(user=request.user)
+        profile_form= UserProfileForm()
+    context = {'form':form, 'profile':profile_form}     
+    
+    return render(request, 'authenticate/change_password.html', context)
+    
